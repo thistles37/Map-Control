@@ -4,7 +4,6 @@ package com.thistles.mapcontrol.commands;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -18,6 +17,7 @@ import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -25,9 +25,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Commands implements CommandExecutor {
     public Commands() {
@@ -44,79 +45,8 @@ public class Commands implements CommandExecutor {
                     p.sendMessage("Please provide a command-line argument.");
                     return true;
                 }
-                // Add console logs of maps deleted and user involved
-                // check if given argument is contained in the set of options
-                // The current implementation will give you an unknown
-                // map if the map was not saved to disk yet. So we can try
-                // to create a new hashmap, get the keys and values we want from the current
-                // cache, and save that to the data folder.
-
-                // Add an undo functionality
-                // and /map undo all
-
                 CraftWorld world = (CraftWorld) Bukkit.getWorlds().get(0);
-                String worldPath = world.getWorldFolder().getPath();
 
-                int id = getMapId(p);
-                String fileName = getFileName(id);
-                NamedTag mapNamedTag;
-                File mapFile;
-                try {
-                    mapFile = getMapData(world, id);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (!mapFile.exists()) {
-                    p.sendMessage("Map file does not exist. Wait for world auto-save and try again.");
-                    // Could add exception for a forced cache clearing (add command argument)
-                    // If we add force clearing, maybe we could instead deliberately clear
-                    // the map from disk as well to make it unusable. Obviously only use it
-                    // when absolutely necessary.
-                    // But moderators could ban anyone who abuses map art, so maybe not necessary
-                    return true;
-                }
-
-                if (args[0].equalsIgnoreCase("clear")) {
-                    if (mapFile.exists()) {
-                        try {
-                            mapNamedTag = readMapData(mapFile);
-                            clearMap(mapNamedTag, world, id);
-
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    removeCache(world, id);
-                    return true;
-                }
-                if (args[0].equalsIgnoreCase("unlock")) {
-                    if (mapFile.exists()) {
-                        try {
-                            mapNamedTag = readMapData(mapFile);
-                            unlockMap(mapNamedTag, world, id);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    removeCache(world, id);
-                    return true;
-                }
-                if (args[0].equalsIgnoreCase("tp")) {
-                    if (mapFile.exists()) {
-                        try {
-                            mapNamedTag = readMapData(mapFile);
-                            Location coordinates = getMapCoordinates(world, mapNamedTag);
-                            tpToMap(p, coordinates);
-                            return true;
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    // Could use NMS' save() function to save all cache to data
-                    p.sendMessage("Could not teleport, save the world first!");
-                    return true;
-                }
                 if (args[0].equalsIgnoreCase("get")) {
                     ItemStack map = getMap(world, p);
                     if (map != null) {
@@ -125,10 +55,67 @@ public class Commands implements CommandExecutor {
                         p.sendMessage("No maps found");
                     }
                     return true;
-
-                    // Keep adding to this vector until you hit an entity. Give up after like 5 blocks
-                    // Vector is already normalized
                 }
+
+                ItemStack heldItem = p.getInventory().getItemInMainHand();
+                int id = getMapId(heldItem);
+
+                NamedTag mapNamedTag;
+                File mapFile;
+
+                try {
+                    mapFile = getMapData(world, id);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if (!isMap(heldItem)) {
+                    p.sendMessage("Please hold a map");
+                    return true;
+                }
+
+                if (!mapFile.exists()) {
+                    p.sendMessage("Map file does not exist. Wait for world auto-save and try again.");
+                    return true;
+                }
+
+                if (args[0].equalsIgnoreCase("clear")) {
+                    try {
+                        mapNamedTag = readMapData(mapFile);
+                        clearMap(mapNamedTag);
+                        saveMapData(world, mapNamedTag, id);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    removeCache(world, id);
+                    System.out.println("Map with id " + id + " has been cleared by " + p.getName());
+                    return true;
+                }
+                if (args[0].equalsIgnoreCase("unlock")) {
+                    try {
+                        mapNamedTag = readMapData(mapFile);
+                        unlockMap(mapNamedTag);
+                        saveMapData(world, mapNamedTag, id);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    removeCache(world, id);
+                    System.out.println("Map with id " + id + " has been unlocked by " + p.getName());
+                    return true;
+                }
+                if (args[0].equalsIgnoreCase("tp")) {
+                    try {
+                        mapNamedTag = readMapData(mapFile);
+                        Location coordinates = getMapCoordinates(world, mapNamedTag);
+                        tpToMap(p, coordinates);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println(p.getName() + " has teleported to the creation coordinates of the map with id " + id);
+                    return true;
+                }
+
                 return true;
             } else {
                 p.sendMessage("You do not have permission to execute this command!");
@@ -137,8 +124,11 @@ public class Commands implements CommandExecutor {
         }
     }
 
-    public int getMapId(Player p) {
-        ItemStack map = p.getInventory().getItemInMainHand();
+    public boolean isMap(ItemStack item) {
+        return item.getType() == Material.MAP;
+    }
+
+    public int getMapId(ItemStack map) {
         return NBTEditor.getInt(map, "map");
     }
 
@@ -158,13 +148,18 @@ public class Commands implements CommandExecutor {
         return (CompoundTag) ((CompoundTag) namedTag.getTag()).get("data");
     }
 
-    public void clearMap(NamedTag namedTag, CraftWorld world, int id) throws IOException {
+    public void clearMap(NamedTag namedTag) throws IOException {
         CompoundTag c = getMapCompound(namedTag);
         String key = "colors";
         byte[] value = new byte[16384];
         c.putByteArray(key, value);
+    }
 
-        saveMapData(world, namedTag, id);
+    public void unlockMap(NamedTag namedTag) throws IOException {
+        CompoundTag c = getMapCompound(namedTag);
+        String key = "locked";
+        byte value = 0B000000;
+        c.putByte(key, value);
     }
 
     public Location getMapCoordinates(CraftWorld world, NamedTag namedTag) {
@@ -178,24 +173,12 @@ public class Commands implements CommandExecutor {
         p.teleport(coordinates);
     }
 
-    public void unlockMap(NamedTag namedTag, CraftWorld world, int id) throws IOException {
-        CompoundTag c = getMapCompound(namedTag);
-        String key = "locked";
-        byte value = 0B000000;
-        c.putByte(key, value);
-
-        // This overwrites the map saved in the data folder
-        saveMapData(world, namedTag, id);
-    }
-
     public ItemStack getMap(CraftWorld world, Player p) {
         Vector lineOfSight = p.getEyeLocation().getDirection().multiply(0.1);
         Location vCoordinates = p.getEyeLocation();
         for (int i = 0; i < 50; i++) {
             vCoordinates.add(lineOfSight);
             List<Entity> entities = (List<Entity>) world.getNearbyEntities(vCoordinates, 0.1, 0.1, 0.1);
-            System.out.println(vCoordinates);
-            System.out.println(entities);
             if (!entities.isEmpty()) {
                 Entity entity = entities.get(0);
                 if (entity instanceof ItemFrame) {
