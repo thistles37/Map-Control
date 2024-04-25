@@ -39,8 +39,7 @@ public class Commands implements CommandExecutor {
             Player p = (Player)sender;
             if (p.hasPermission("mapcontrol.use")) {
                 if (args.length == 0) {
-                    p.sendMessage("Please provide a command-line argument.");
-                    return true;
+                    return false;
                 }
                 CraftWorld world = (CraftWorld) Bukkit.getWorlds().get(0);
 

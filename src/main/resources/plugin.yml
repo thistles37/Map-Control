@@ -7,4 +7,4 @@ commands:
   mapcontrol:
     aliases: [map]
     description: Manage filled maps on your server.
-    usage: /mapcontrol <clear>|<unlock>|<tp>|<get>
+    usage: /<command> <action>
