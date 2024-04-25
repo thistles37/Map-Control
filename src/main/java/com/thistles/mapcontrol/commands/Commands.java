@@ -17,7 +17,6 @@ import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -25,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,6 +48,7 @@ public class Commands implements CommandExecutor {
                     ItemStack map = getMap(world, p);
                     if (map != null) {
                         p.getInventory().addItem(map);
+                        p.sendMessage("Received map");
                     } else {
                         p.sendMessage("No maps found");
                     }
@@ -125,7 +123,7 @@ public class Commands implements CommandExecutor {
     }
 
     public boolean isMap(ItemStack item) {
-        return item.getType() == Material.MAP;
+        return item.getType() == Material.FILLED_MAP;
     }
 
     public int getMapId(ItemStack map) {

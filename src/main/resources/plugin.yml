@@ -1,12 +1,10 @@
 name: MapControl
 version: '${project.version}'
 main: com.thistles.mapcontrol.Main
-
-#depend: [LuckPerms]
+api-version: 1.20
 
 commands:
   mapcontrol:
     aliases: [map]
     description: Manage filled maps on your server.
     usage: /mapcontrol <clear>|<unlock>|<tp>|<get>
-#    permission: mapcontrol.use
