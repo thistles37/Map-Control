@@ -1,4 +1,4 @@
-package com.thistles.mapcontrol.commands;
+package com.thistles.common.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

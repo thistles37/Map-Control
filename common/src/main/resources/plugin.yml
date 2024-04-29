@@ -1,0 +1,10 @@
+name: MapControl
+version: '${project.version}'
+main: com.thistles.mapcontrol.Main
+api-version: 1.20
+
+commands:
+  mapcontrol:
+    aliases: [map]
+    description: Manage filled maps on your server.
+    usage: /<command> <action>

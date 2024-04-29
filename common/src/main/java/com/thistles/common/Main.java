@@ -1,7 +1,7 @@
-package com.thistles.mapcontrol;
+package com.thistles.common;
 
-import com.thistles.mapcontrol.commands.Commands;
-import com.thistles.mapcontrol.commands.TabCompletion;
+import com.thistles.common.commands.Commands;
+import com.thistles.common.commands.TabCompletion;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;

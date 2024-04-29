@@ -1,9 +1,8 @@
-package com.thistles.mapcontrol.commands;
+package com.thistles.common.commands;
 
 
+import com.thistles.common.nms.NMSHandler;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.saveddata.SavedData;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
@@ -13,19 +12,12 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
-
+import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 
 public class Commands implements CommandExecutor {
     public Commands() {
@@ -41,10 +33,18 @@ public class Commands implements CommandExecutor {
                 if (args.length == 0) {
                     return false;
                 }
-                CraftWorld world = (CraftWorld) Bukkit.getWorlds().get(0);
+
+                NMSHandler nms;
+                try {
+                    //Set your nms field
+                    nms = (NMSHandler) Class.forName("com.thistles.mapcontrol.nms.NMSHandler_" + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].substring(1)).newInstance();
+                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                    return true;
+                }
 
                 if (args[0].equalsIgnoreCase("get")) {
-                    ItemStack map = getMap(world, p);
+                    ItemStack map = nms.getMap(p);
                     if (map != null) {
                         p.getInventory().addItem(map);
                         p.sendMessage("Received map");
@@ -53,7 +53,7 @@ public class Commands implements CommandExecutor {
                     }
                     return true;
                 }
-
+                // Change the order of checks
                 ItemStack heldItem = p.getInventory().getItemInMainHand();
                 int id = getMapId(heldItem);
 
@@ -61,7 +61,7 @@ public class Commands implements CommandExecutor {
                 File mapFile;
 
                 try {
-                    mapFile = getMapData(world, id);
+                    mapFile = nms.getMapData(getFileName(id));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -80,11 +80,11 @@ public class Commands implements CommandExecutor {
                     try {
                         mapNamedTag = readMapData(mapFile);
                         clearMap(mapNamedTag);
-                        saveMapData(world, mapNamedTag, id);
+                        nms.saveMapData(mapNamedTag, getFileName(id));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    removeCache(world, id);
+                    nms.removeCache(id);
                     System.out.println("Map with id " + id + " has been cleared by " + p.getName());
                     return true;
                 }
@@ -92,18 +92,18 @@ public class Commands implements CommandExecutor {
                     try {
                         mapNamedTag = readMapData(mapFile);
                         unlockMap(mapNamedTag);
-                        saveMapData(world, mapNamedTag, id);
+                        nms.saveMapData(mapNamedTag, getFileName(id));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    removeCache(world, id);
+                    nms.removeCache(id);
                     System.out.println("Map with id " + id + " has been unlocked by " + p.getName());
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("tp")) {
                     try {
                         mapNamedTag = readMapData(mapFile);
-                        Location coordinates = getMapCoordinates(world, mapNamedTag);
+                        Location coordinates = nms.getMapCoordinates(getMapCompound(mapNamedTag));
                         tpToMap(p, coordinates);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -133,10 +133,6 @@ public class Commands implements CommandExecutor {
         return "map_" + id + ".dat";
     }
 
-    public File getMapData(CraftWorld world, int id) throws IOException {
-        return new File(world.getWorldFolder(), "data/" + getFileName(id));
-    }
-
     public NamedTag readMapData(File mapFile) throws IOException {
         return NBTUtil.read(mapFile);
     }
@@ -159,44 +155,7 @@ public class Commands implements CommandExecutor {
         c.putByte(key, value);
     }
 
-    public Location getMapCoordinates(CraftWorld world, NamedTag namedTag) {
-        CompoundTag c = getMapCompound(namedTag);
-        int x = c.getInt("xCenter");
-        int z = c.getInt("zCenter");
-        return new Location(world, x, 200, z, 1, 1);
-    }
-
     public void tpToMap(Player p, Location coordinates) {
         p.teleport(coordinates);
-    }
-
-    public ItemStack getMap(CraftWorld world, Player p) {
-        Vector lineOfSight = p.getEyeLocation().getDirection().multiply(0.1);
-        Location vCoordinates = p.getEyeLocation();
-        for (int i = 0; i < 50; i++) {
-            vCoordinates.add(lineOfSight);
-            List<Entity> entities = (List<Entity>) world.getNearbyEntities(vCoordinates, 0.1, 0.1, 0.1);
-            if (!entities.isEmpty()) {
-                Entity entity = entities.get(0);
-                if (entity instanceof ItemFrame) {
-                    ItemStack itemFrame = ((ItemFrame) entity).getItem();
-                    if (itemFrame.getType() == Material.FILLED_MAP) {
-                        return itemFrame;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public void saveMapData(CraftWorld world, NamedTag namedTag, int id) throws IOException {
-        String worldPath = world.getWorldFolder().getPath();
-        NBTUtil.write(namedTag, worldPath + "/data/" + getFileName(id));
-    }
-
-    public void removeCache(CraftWorld world, int id) {
-        ServerLevel server = world.getHandle();
-        HashMap<String, SavedData> cache = (HashMap<String, SavedData>) server.getDataStorage().cache;
-        cache.remove("map_" + id);
     }
 }
