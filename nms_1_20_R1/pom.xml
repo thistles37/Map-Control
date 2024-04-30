@@ -7,11 +7,26 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nmshandler_1_20_R1</artifactId>
 
+    <repositories>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.thistles</groupId>
-            <artifactId>mapcontrol</artifactId>
-            <version>1.0.0</version>
+            <artifactId>common</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -19,6 +34,11 @@
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <classifier>remapped-mojang</classifier>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Querz</groupId>
+            <artifactId>NBT</artifactId>
+            <version>6.1</version>
         </dependency>
     </dependencies>
 </project>

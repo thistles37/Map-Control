@@ -1,4 +1,4 @@
-package com.thistles.mapcontrol.nms;
+package com.thistles.nms;
 
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import com.thistles.common.nms.NMSHandler;

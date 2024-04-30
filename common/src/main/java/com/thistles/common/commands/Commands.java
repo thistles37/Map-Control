@@ -37,7 +37,9 @@ public class Commands implements CommandExecutor {
                 NMSHandler nms;
                 try {
                     //Set your nms field
-                    nms = (NMSHandler) Class.forName("com.thistles.mapcontrol.nms.NMSHandler_" + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].substring(1)).newInstance();
+                    String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].substring(1);
+                    System.out.println(version);
+                    nms = (NMSHandler) Class.forName("com.thistles.nms.NMSHandler_" + version).newInstance();
                 } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
                     e.printStackTrace();
                     return true;

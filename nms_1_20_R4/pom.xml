@@ -17,7 +17,7 @@
         </dependency>
         <dependency>
             <groupId>com.thistles</groupId>
-            <artifactId>mapcontrol</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>
