@@ -4,17 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.thistles</groupId>
-    <artifactId>common</artifactId>
+    <parent>
+        <groupId>com.thistles</groupId>
+        <artifactId>main</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>mapcontrol</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>common</name>
+    <name>mapcontrol</name>
 
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <build>

@@ -1,7 +1,7 @@
 <project>
     <parent>
         <groupId>com.thistles</groupId>
-        <artifactId>mapcontrol</artifactId>
+        <artifactId>main</artifactId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -67,8 +67,8 @@
     <dependencies>
         <dependency>
             <groupId>com.thistles</groupId>
-            <artifactId>common</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>nmshandler</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>

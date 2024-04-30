@@ -1,4 +1,4 @@
-package com.thistles.common.nms;
+package com.thistles.nmshandler;
 
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;

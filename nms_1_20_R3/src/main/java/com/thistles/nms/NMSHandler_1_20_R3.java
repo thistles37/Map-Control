@@ -1,5 +1,6 @@
 package com.thistles.nms;
 
+import com.thistles.nmshandler.NMSHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.querz.nbt.io.NBTUtil;
@@ -19,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import com.thistles.common.nms.NMSHandler;
 
 public class NMSHandler_1_20_R3 implements NMSHandler {
     private final CraftWorld world;

@@ -1,7 +1,7 @@
 package com.thistles.common.commands;
 
 
-import com.thistles.common.nms.NMSHandler;
+import com.thistles.nmshandler.NMSHandler;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
