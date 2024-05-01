@@ -21,6 +21,7 @@ public class TabCompletion implements TabCompleter {
                 arguments.add("unlock");
                 arguments.add("tp");
                 arguments.add("get");
+                arguments.add("undo");
         }
         return arguments;
         } else if (args.length > 1) {

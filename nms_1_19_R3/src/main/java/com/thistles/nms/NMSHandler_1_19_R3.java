@@ -4,14 +4,14 @@ import com.thistles.nmshandler.NMSHandler;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
 
 import java.util.HashMap;
 
-public class NMSHandler_1_20_R1 implements NMSHandler {
+public class NMSHandler_1_19_R3 implements NMSHandler {
     private final CraftWorld world;
 
-    public NMSHandler_1_20_R1() {
+    public NMSHandler_1_19_R3() {
         this.world = (CraftWorld) Bukkit.getWorlds().get(0);
     }
 

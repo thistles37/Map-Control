@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.thistles</groupId>
         <artifactId>main</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>nmshandler</artifactId>
-    <version>1.0.0</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
 
     <name>nmshandler</name>
@@ -54,42 +54,42 @@
         </resources>
     </build>
 
-    <repositories>
-        <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-        </repository>
-        <repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public/</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>spigotmc-repo</id>-->
+<!--            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>sonatype</id>-->
+<!--            <url>https://oss.sonatype.org/content/groups/public/</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>CodeMC</id>-->
+<!--            <url>https://repo.codemc.org/repository/maven-public/</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>jitpack.io</id>-->
+<!--            <url>https://jitpack.io</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
     <dependencies>
-        <dependency>
-            <groupId>io.github.bananapuncher714</groupId>
-            <artifactId>nbteditor</artifactId>
-            <version>7.19.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.Querz</groupId>
-            <artifactId>NBT</artifactId>
-            <version>6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>24.1.0</version>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.github.bananapuncher714</groupId>-->
+<!--            <artifactId>nbteditor</artifactId>-->
+<!--            <version>7.19.2</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.github.Querz</groupId>-->
+<!--            <artifactId>NBT</artifactId>-->
+<!--            <version>6.1</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.jetbrains</groupId>-->
+<!--            <artifactId>annotations</artifactId>-->
+<!--            <version>24.1.0</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>

@@ -7,11 +7,11 @@
     <parent>
         <groupId>com.thistles</groupId>
         <artifactId>main</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>mapcontrol</artifactId>
-    <version>1.0.0</version>
+    <version>${project.parent.version}</version>
     <packaging>jar</packaging>
 
     <name>mapcontrol</name>
@@ -105,13 +105,23 @@
         </dependency>
         <dependency>
             <groupId>com.thistles</groupId>
+            <artifactId>nmshandler_1_18_R2</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thistles</groupId>
+            <artifactId>nmshandler_1_19_R3</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thistles</groupId>
             <artifactId>nmshandler_1_20_R1</artifactId>
-            <version>1.0.0</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.thistles</groupId>
             <artifactId>nmshandler_1_20_R3</artifactId>
-            <version>1.0.0</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 </project>
