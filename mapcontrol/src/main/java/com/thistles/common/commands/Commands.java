@@ -75,13 +75,13 @@ public class Commands implements CommandExecutor {
                         int key = action.keySet().iterator().next();
                         File actionFile = getMapData(world, key);
                         NamedTag actionNamedTag = readMapData(actionFile);
-                        undoAction(p, world, actionNamedTag, action);
+                        undoAction(world, actionNamedTag, action);
                         nms.removeCache(key);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
+                    p.sendMessage("Undo success!");
                     return true;
-                    // Check if you need to do anything special in case auto-save happens before an undo. probs not
                 }
 
                 ItemStack heldItem = p.getInventory().getItemInMainHand();
@@ -243,12 +243,11 @@ public class Commands implements CommandExecutor {
         return mapActions.get(p).pop();
     }
 
-    public void undoAction(Player p, World world, NamedTag namedTag, HashMap<Integer, CompoundTag> action) throws IOException {
+    public void undoAction(World world, NamedTag namedTag, HashMap<Integer, CompoundTag> action) throws IOException {
         int key = action.keySet().iterator().next();
         namedTag.setTag(action.get(key));
 
         String worldPath = getWorldPath(world);
         NBTUtil.write(namedTag, worldPath + "/data/" + getFileName(key));
-        p.sendMessage("Undo success!");
     }
 }

@@ -6,8 +6,7 @@
 
     <groupId>com.thistles</groupId>
     <artifactId>main</artifactId>
-    <version>1.1.0</version>
-<!--    check if you can facilitate version change    -->
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>Map Control</name>
@@ -15,6 +14,7 @@
     <modules>
         <module>nmshandler</module>
         <module>nms_1_18_R2</module>
+        <module>nms_1_19_R1</module>
         <module>nms_1_19_R3</module>
         <module>nms_1_20_R1</module>
         <module>nms_1_20_R3</module>
@@ -22,8 +22,23 @@
     </modules>
 
     <properties>
+        <!--    Define project version here    -->
+        <plugin.version>1.1.1</plugin.version>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <finalName>mapcontrol-${plugin.version}</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
