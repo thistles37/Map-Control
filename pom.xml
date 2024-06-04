@@ -18,12 +18,13 @@
         <module>nms_1_19_R3</module>
         <module>nms_1_20_R1</module>
         <module>nms_1_20_R3</module>
+        <module>nms_1_20_R4</module>
         <module>mapcontrol</module>
     </modules>
 
     <properties>
         <!--    Define project version here    -->
-        <plugin.version>1.1.1</plugin.version>
+        <plugin.version>1.1.2</plugin.version>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
@@ -34,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
                 <configuration>
                     <finalName>mapcontrol-${plugin.version}</finalName>
                 </configuration>

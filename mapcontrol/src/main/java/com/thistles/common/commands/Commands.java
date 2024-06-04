@@ -2,6 +2,11 @@ package com.thistles.common.commands;
 
 
 import com.thistles.nmshandler.NMSHandler;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.NBTCompound;
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
@@ -25,6 +30,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Commands implements CommandExecutor {
     public Commands() {
@@ -146,12 +153,29 @@ public class Commands implements CommandExecutor {
         }
     }
 
+
+
     public boolean isMap(ItemStack item) {
         return item.getType() == Material.FILLED_MAP;
     }
 
     public int getMapId(ItemStack map) {
-        return NBTEditor.getInt(map, "map");
+        String version = getServerVersion();
+        if (getVersionInteger(version) < getVersionInteger("1_20_R4")) {
+            return NBTEditor.getInt(map, "map");
+        }
+        ReadWriteNBT nbt = NBT.itemStackToNBT(map);
+        NBTCompound components = (NBTCompound) nbt.getCompound("components");
+        return components.getInteger("minecraft:map_id");
+    }
+
+    public String getServerVersion() {
+        return Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+    }
+
+    public int getVersionInteger(String version) {
+        String numericVersion = version.replaceAll("\\D", "").substring(1);
+        return Integer.parseInt(numericVersion);
     }
 
     public String getFileName(int id) {
