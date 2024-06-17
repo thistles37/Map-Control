@@ -81,8 +81,8 @@
         </dependency>
         <dependency>
             <groupId>de.tr7zw</groupId>
-            <artifactId>Item-NBT-API</artifactId>
-            <version>2.12.4</version>
+            <artifactId>item-nbt-api</artifactId>
+            <version>2.13.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.Querz</groupId>
@@ -136,6 +136,11 @@
         <dependency>
             <groupId>com.thistles</groupId>
             <artifactId>nmshandler_1_20_R4</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thistles</groupId>
+            <artifactId>nmshandler_1_21_R1</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
