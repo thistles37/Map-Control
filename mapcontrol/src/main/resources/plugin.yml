@@ -1,5 +1,6 @@
 name: MapControl
 version: '${plugin.version}'
+author: Thistles
 main: com.thistles.common.Main
 api-version: 1.18
 

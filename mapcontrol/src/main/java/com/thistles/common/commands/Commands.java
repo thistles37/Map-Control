@@ -1,12 +1,12 @@
 package com.thistles.common.commands;
 
 
+import com.thistles.common.messages.Messages;
+import com.thistles.common.messages.Plugin;
 import com.thistles.nmshandler.NMSHandler;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
-import de.tr7zw.changeme.nbtapi.iface.ReadableItemNBT;
 import io.github.bananapuncher714.nbteditor.NBTEditor;
 import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class Commands implements CommandExecutor {
     public Commands() {
@@ -47,13 +45,17 @@ public class Commands implements CommandExecutor {
             Player p = (Player)sender;
             if (p.hasPermission("mapcontrol.use")) {
                 if (args.length == 0) {
+                    // Send command and plugin information
+                    p.sendMessage(Plugin.getPluginName() + " " + Plugin.getPluginVersion() + " by " + Plugin.getPluginAuthor());
                     return false;
                 }
                 World world = p.getWorld();
                 NamedTag mapNamedTag;
                 File mapFile;
 
-                // Create nms handler
+                /*
+                Create nms handler
+                 */
                 NMSHandler nms;
                 try {
                     String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].substring(1);
@@ -62,20 +64,27 @@ public class Commands implements CommandExecutor {
                     throw new RuntimeException(e);
                 }
 
+                // /map help
+                if (args[0].equalsIgnoreCase("help")) {
+                    p.sendMessage("Hi, this is under development.");
+                    return true;
+                }
+
                 if (args[0].equalsIgnoreCase("get")) {
                     ItemStack map = getMap(world, p);
                     if (map != null) {
                         p.getInventory().addItem(map);
-                        p.sendMessage("Received map!");
+                        p.sendMessage(Messages.FRAMED_MAP_FOUND);
                     } else {
-                        p.sendMessage("No maps found!");
+                        p.sendMessage(Messages.NO_FRAMED_MAP_FOUND);
                     }
                     return true;
                 }
+
                 if (args[0].equalsIgnoreCase("undo")) {
                     try {
                         if (!actionExists(p)) {
-                            p.sendMessage("There are no actions to be undone!");
+                            p.sendMessage(Messages.NO_UNDO_AVAILABLE);
                             return true;
                         }
                         HashMap<Integer, CompoundTag> action = retrieveAction(p);
@@ -87,13 +96,16 @@ public class Commands implements CommandExecutor {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    p.sendMessage("Undo success!");
+                    p.sendMessage(Messages.UNDO_SUCCESS);
                     return true;
                 }
 
+                /*
+                Run code that needs item info
+                 */
                 ItemStack heldItem = p.getInventory().getItemInMainHand();
                 if (!isMap(heldItem)) {
-                    p.sendMessage("Please hold a map!");
+                    p.sendMessage(Messages.NO_MAP_IN_HAND);
                     return true;
                 }
                 int id = getMapId(heldItem);
@@ -105,7 +117,7 @@ public class Commands implements CommandExecutor {
                 }
 
                 if (!mapFile.exists()) {
-                    p.sendMessage("Map file does not exist, wait for world auto-save!");
+                    p.sendMessage(Messages.MAP_DATA_NOT_FOUND);
                     return true;
                 }
 
@@ -124,9 +136,10 @@ public class Commands implements CommandExecutor {
                         throw new RuntimeException(e);
                     }
                     nms.removeCache(id);
-                    p.sendMessage("Clear success!");
+                    p.sendMessage(Messages.CLEAR_MAP_SUCCESS);
                     return true;
                 }
+
                 if (args[0].equalsIgnoreCase("unlock")) {
                     try {
                         storeAction(p, mapNamedTag, id);
@@ -136,13 +149,14 @@ public class Commands implements CommandExecutor {
                         throw new RuntimeException(e);
                     }
                     nms.removeCache(id);
-                    p.sendMessage("Unlock success!");
+                    p.sendMessage(Messages.UNLOCK_MAP_SUCCESS);
                     return true;
                 }
+
                 if (args[0].equalsIgnoreCase("tp")) {
                     Location coordinates = getMapCoordinates(world, getMapCompound(mapNamedTag));
                     tpToMap(p, coordinates);
-                    p.sendMessage("Teleporting...");
+                    p.sendMessage(Messages.TELEPORTING_TO_DESTINATION);
                     return true;
                 }
                 return true;
