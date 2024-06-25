@@ -1,6 +1,6 @@
 package com.thistles.common.listener;
 
-import com.thistles.common.messages.Plugin;
+import com.thistles.common.console.PluginInfo;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,7 +38,7 @@ public class UpdateChecker implements Listener {
             return;
         }
 
-        currentVersionString = Plugin.getPluginVersion();
+        currentVersionString = PluginInfo.getPluginVersion();
         latestVersionString = getLatestVersion();
 
         if (latestVersionString == null) {

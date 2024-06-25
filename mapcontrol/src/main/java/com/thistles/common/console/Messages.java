@@ -1,4 +1,4 @@
-package com.thistles.common.messages;
+package com.thistles.common.console;
 
 import org.bukkit.ChatColor;
 
@@ -17,16 +17,19 @@ public class Messages {
     public static String NO_FRAMED_MAP_FOUND;
     public static String NO_UNDO_AVAILABLE;
 
+    public static String NO_PERMISSIONS;
+
     public static void init() {
         CLEAR_MAP_SUCCESS = PREFIX + ChatColor.GREEN + "Clear success.";
         UNDO_SUCCESS = PREFIX + ChatColor.GREEN + "Undo success.";
         UNLOCK_MAP_SUCCESS = PREFIX + ChatColor.GREEN + "Unlock success.";
-        TELEPORTING_TO_DESTINATION = PREFIX + "Teleporting...";
+        TELEPORTING_TO_DESTINATION = PREFIX + ChatColor.DARK_RED + "Teleporting...";
         FRAMED_MAP_FOUND = PREFIX + ChatColor.GREEN + "Map found.";
 
         MAP_DATA_NOT_FOUND = PREFIX + ChatColor.RED + "Map data not found, wait for world auto-save.";
         NO_MAP_IN_HAND = PREFIX + ChatColor.RED + "Please hold a map.";
         NO_FRAMED_MAP_FOUND = PREFIX + ChatColor.RED + "No maps found.";
         NO_UNDO_AVAILABLE = PREFIX + ChatColor.RED + "No undo available.";
+        NO_PERMISSIONS = ChatColor.DARK_AQUA + "Insufficient permissions.";
     }
 }

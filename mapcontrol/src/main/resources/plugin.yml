@@ -7,10 +7,20 @@ api-version: 1.18
 commands:
   mapcontrol:
     aliases: [map]
-    permission: mapcontrol.use
+    #permission: mapcontrol.use
     description: Manage filled maps on your server.
     usage: /<command> <action>
 
-mapcontrol:
-  mapcontrol.use:
-    description: Access to all mapcontrol functions
+permissions:
+  mapcontrol.help:
+    description: Access to help command
+  mapcontrol.clear:
+    description: Access to clear command
+  mapcontrol.unlock:
+    description: Access to unlock command
+  mapcontrol.undo:
+    description: Access to undo command
+  mapcontrol.tp:
+    description: Access to tp command
+  mapcontrol.get:
+    description: Access to get command

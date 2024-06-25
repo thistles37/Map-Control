@@ -1,34 +1,23 @@
 package com.thistles.common.commands;
 
 
-import com.thistles.common.messages.Messages;
-import com.thistles.common.messages.Plugin;
+import com.thistles.common.console.Messages;
+import com.thistles.common.console.PluginInfo;
 import com.thistles.nmshandler.NMSHandler;
-import de.tr7zw.changeme.nbtapi.NBT;
-import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
-import io.github.bananapuncher714.nbteditor.NBTEditor;
-import net.querz.nbt.io.NBTUtil;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import com.thistles.common.utils.MapUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Stack;
 
 public class Commands implements CommandExecutor {
@@ -42,250 +31,142 @@ public class Commands implements CommandExecutor {
             sender.sendMessage("Only players may execute this command!");
             return true;
         } else {
-            Player p = (Player)sender;
-            if (p.hasPermission("mapcontrol.use")) {
-                if (args.length == 0) {
-                    // Send command and plugin information
-                    p.sendMessage(Plugin.getPluginName() + " " + Plugin.getPluginVersion() + " by " + Plugin.getPluginAuthor());
-                    return false;
-                }
-                World world = p.getWorld();
-                NamedTag mapNamedTag;
-                File mapFile;
+            Player p = (Player) sender;
 
-                /*
-                Create nms handler
-                 */
-                NMSHandler nms;
+            if (args.length == 0) {
+                p.sendMessage(PluginInfo.getPluginName() + " " + PluginInfo.getPluginVersion() + " by " + PluginInfo.getPluginAuthor());
+                return false;
+            }
+
+            final String argument = args[0].toLowerCase();
+            ItemStack heldItem = p.getInventory().getItemInMainHand();
+            World world = p.getWorld();
+            NamedTag mapNamedTag;
+            File mapFile;
+
+            /*
+            Create nms handler
+             */
+            NMSHandler nms;
+            try {
+                String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].substring(1);
+                nms = (NMSHandler) Class.forName("com.thistles.nms.NMSHandler_" + version).newInstance();
+            } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (argument.equals("help") && p.hasPermission("mapcontrol.help")) {
+                p.sendMessage(ChatColor.GOLD + "/map help: " + ChatColor.RESET + "command information");
+                p.sendMessage(ChatColor.GOLD + "/map clear: " + ChatColor.RESET + "clear map data");
+                p.sendMessage(ChatColor.GOLD + "/map unlock: " + ChatColor.RESET + "unlock map");
+                p.sendMessage(ChatColor.GOLD + "/map undo: " + ChatColor.RESET + "revert map actions");
+                p.sendMessage(ChatColor.GOLD + "/map tp: " + ChatColor.RESET + "teleport to map origin");
+                p.sendMessage(ChatColor.GOLD + "/map get: " + ChatColor.RESET + "receive map on an item frame");
+                return true;
+            }
+
+            if (argument.equals("get") && p.hasPermission("mapcontrol.get")) {
+                ItemStack map = MapUtils.getMap(world, p);
+                if (map != null) {
+                    p.getInventory().addItem(map);
+                    p.sendMessage(Messages.FRAMED_MAP_FOUND);
+                } else {
+                    p.sendMessage(Messages.NO_FRAMED_MAP_FOUND);
+                }
+                return true;
+            }
+
+            if (argument.equals("undo") && p.hasPermission("mapcontrol.undo")) {
                 try {
-                    String version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3].substring(1);
-                    nms = (NMSHandler) Class.forName("com.thistles.nms.NMSHandler_" + version).newInstance();
-                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+                    if (!MapUtils.actionExists(p)) {
+                        p.sendMessage(Messages.NO_UNDO_AVAILABLE);
+                        return true;
+                    }
+                    HashMap<Integer, CompoundTag> action = MapUtils.retrieveAction(p);
+                    int key = action.keySet().iterator().next();
+                    File actionFile = MapUtils.getMapData(world, key);
+                    NamedTag actionNamedTag = MapUtils.readMapData(actionFile);
+                    MapUtils.undoAction(world, actionNamedTag, action);
+                    nms.removeCache(key);
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+                p.sendMessage(Messages.UNDO_SUCCESS);
+                return true;
+            }
 
-                // /map help
-                if (args[0].equalsIgnoreCase("help")) {
-                    p.sendMessage("Hi, this is under development.");
-                    return true;
-                }
-
-                if (args[0].equalsIgnoreCase("get")) {
-                    ItemStack map = getMap(world, p);
-                    if (map != null) {
-                        p.getInventory().addItem(map);
-                        p.sendMessage(Messages.FRAMED_MAP_FOUND);
-                    } else {
-                        p.sendMessage(Messages.NO_FRAMED_MAP_FOUND);
-                    }
-                    return true;
-                }
-
-                if (args[0].equalsIgnoreCase("undo")) {
-                    try {
-                        if (!actionExists(p)) {
-                            p.sendMessage(Messages.NO_UNDO_AVAILABLE);
-                            return true;
-                        }
-                        HashMap<Integer, CompoundTag> action = retrieveAction(p);
-                        int key = action.keySet().iterator().next();
-                        File actionFile = getMapData(world, key);
-                        NamedTag actionNamedTag = readMapData(actionFile);
-                        undoAction(world, actionNamedTag, action);
-                        nms.removeCache(key);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    p.sendMessage(Messages.UNDO_SUCCESS);
-                    return true;
-                }
-
-                /*
-                Run code that needs item info
-                 */
-                ItemStack heldItem = p.getInventory().getItemInMainHand();
-                if (!isMap(heldItem)) {
+            if (argument.equals("clear") && p.hasPermission("mapcontrol.clear")) {
+                if (!MapUtils.isMap(heldItem)) {
                     p.sendMessage(Messages.NO_MAP_IN_HAND);
                     return true;
                 }
-                int id = getMapId(heldItem);
-
+                int id = MapUtils.getMapId(heldItem);
                 try {
-                    mapFile = getMapData(world, id);
+                    mapFile = MapUtils.getMapData(world, id);
+                    if (!mapFile.exists()) {
+                        p.sendMessage(Messages.MAP_DATA_NOT_FOUND);
+                        return true;
+                    }
+                    mapNamedTag = MapUtils.readMapData(mapFile);
+                    MapUtils.storeAction(p, mapNamedTag, id);
+                    MapUtils.clearMap(mapNamedTag);
+                    MapUtils.saveMapData(world, mapNamedTag, id);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
-                if (!mapFile.exists()) {
-                    p.sendMessage(Messages.MAP_DATA_NOT_FOUND);
-                    return true;
-                }
-
-                try {
-                    mapNamedTag = readMapData(mapFile);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (args[0].equalsIgnoreCase("clear")) {
-                    try {
-                        storeAction(p, mapNamedTag, id);
-                        clearMap(mapNamedTag);
-                        saveMapData(world, mapNamedTag, id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    nms.removeCache(id);
-                    p.sendMessage(Messages.CLEAR_MAP_SUCCESS);
-                    return true;
-                }
-
-                if (args[0].equalsIgnoreCase("unlock")) {
-                    try {
-                        storeAction(p, mapNamedTag, id);
-                        unlockMap(mapNamedTag);
-                        saveMapData(world, mapNamedTag, id);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    nms.removeCache(id);
-                    p.sendMessage(Messages.UNLOCK_MAP_SUCCESS);
-                    return true;
-                }
-
-                if (args[0].equalsIgnoreCase("tp")) {
-                    Location coordinates = getMapCoordinates(world, getMapCompound(mapNamedTag));
-                    tpToMap(p, coordinates);
-                    p.sendMessage(Messages.TELEPORTING_TO_DESTINATION);
-                    return true;
-                }
+                nms.removeCache(id);
+                p.sendMessage(Messages.CLEAR_MAP_SUCCESS);
                 return true;
-            } else {
-                p.sendMessage("You do not have permission to execute this command!");
-                return false;
             }
-        }
-    }
 
-
-
-    public boolean isMap(ItemStack item) {
-        return item.getType() == Material.FILLED_MAP;
-    }
-
-    public int getMapId(ItemStack map) {
-        String version = getServerVersion();
-        if (getVersionInteger(version) < getVersionInteger("1_20_R4")) {
-            return NBTEditor.getInt(map, "map");
-        }
-        ReadWriteNBT nbt = NBT.itemStackToNBT(map);
-        NBTCompound components = (NBTCompound) nbt.getCompound("components");
-        return components.getInteger("minecraft:map_id");
-    }
-
-    public String getServerVersion() {
-        return Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-    }
-
-    public int getVersionInteger(String version) {
-        String numericVersion = version.replaceAll("\\D", "").substring(1);
-        return Integer.parseInt(numericVersion);
-    }
-
-    public String getFileName(int id) {
-        return "map_" + id + ".dat";
-    }
-
-    public File getMapData(World world, int id) throws IOException {
-        return new File(world.getWorldFolder(), "data/" + getFileName(id));
-    }
-
-    public NamedTag readMapData(File mapFile) throws IOException {
-        return NBTUtil.read(mapFile);
-    }
-
-    public void saveMapData(World world, NamedTag namedTag, int id) throws IOException {
-        String worldPath = getWorldPath(world);
-        NBTUtil.write(namedTag, worldPath + "/data/" + getFileName(id));
-    }
-
-    public CompoundTag getMapCompound(NamedTag namedTag) {
-        return (CompoundTag) ((CompoundTag) namedTag.getTag()).get("data");
-    }
-
-    public String getWorldPath(World world) {
-        return world.getWorldFolder().getPath();
-    }
-
-    public void clearMap(NamedTag namedTag) throws IOException {
-        CompoundTag c = getMapCompound(namedTag);
-        String key = "colors";
-        byte[] value = new byte[16384];
-        c.putByteArray(key, value);
-    }
-
-    public void unlockMap(NamedTag namedTag) throws IOException {
-        CompoundTag c = getMapCompound(namedTag);
-        String key = "locked";
-        byte value = 0B000000;
-        c.putByte(key, value);
-    }
-
-    public Location getMapCoordinates(World world, CompoundTag c) {
-        int x = c.getInt("xCenter");
-        int z = c.getInt("zCenter");
-        return new Location(world, x, 200, z, 1, 1);
-    }
-
-    public void tpToMap(Player p, Location coordinates) {
-        p.teleport(coordinates);
-    }
-
-    public ItemStack getMap(World world, Player p) {
-        Vector lineOfSight = p.getEyeLocation().getDirection().multiply(0.1);
-        Location vCoordinates = p.getEyeLocation();
-        for (int i = 0; i < 50; i++) {
-            vCoordinates.add(lineOfSight);
-            List<Entity> entities = (List<Entity>) world.getNearbyEntities(vCoordinates, 0.1, 0.1, 0.1);
-            if (!entities.isEmpty()) {
-                Entity entity = entities.get(0);
-                if (entity instanceof ItemFrame) {
-                    ItemStack itemFrame = ((ItemFrame) entity).getItem();
-                    if (itemFrame.getType() == Material.FILLED_MAP) {
-                        return itemFrame;
-                    }
+            if (argument.equals("unlock") && p.hasPermission("mapcontrol.unlock")) {
+                if (!MapUtils.isMap(heldItem)) {
+                    p.sendMessage(Messages.NO_MAP_IN_HAND);
+                    return true;
                 }
+                int id = MapUtils.getMapId(heldItem);
+                try {
+                    mapFile = MapUtils.getMapData(world, id);
+                    if (!mapFile.exists()) {
+                        p.sendMessage(Messages.MAP_DATA_NOT_FOUND);
+                        return true;
+                    }
+                    mapNamedTag = MapUtils.readMapData(mapFile);
+                    MapUtils.storeAction(p, mapNamedTag, id);
+                    MapUtils.unlockMap(mapNamedTag);
+                    MapUtils.saveMapData(world, mapNamedTag, id);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                nms.removeCache(id);
+                p.sendMessage(Messages.UNLOCK_MAP_SUCCESS);
+                return true;
             }
+
+            if (argument.equals("tp") && p.hasPermission("mapcontrol.tp")) {
+                if (!MapUtils.isMap(heldItem)) {
+                    p.sendMessage(Messages.NO_MAP_IN_HAND);
+                    return true;
+                }
+                int id = MapUtils.getMapId(heldItem);
+                try {
+                    mapFile = MapUtils.getMapData(world, id);
+                    if (!mapFile.exists()) {
+                        p.sendMessage(Messages.MAP_DATA_NOT_FOUND);
+                        return true;
+                    }
+                    mapNamedTag = MapUtils.readMapData(mapFile);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Location coordinates = MapUtils.getMapCoordinates(world, MapUtils.getMapCompound(mapNamedTag));
+                MapUtils.tpToMap(p, coordinates);
+                p.sendMessage(Messages.TELEPORTING_TO_DESTINATION);
+                return true;
+            }
+
+            p.sendMessage(Messages.NO_PERMISSIONS);
+            return true;
         }
-        return null;
-    }
-
-    public void storeAction(Player p, NamedTag namedTag, int id) {
-        if (!mapActions.containsKey(p)) {
-            mapActions.put(p, new Stack<>());
-        }
-        HashMap<Integer, CompoundTag> action = new HashMap<>();
-        CompoundTag c = (CompoundTag) namedTag.getTag();
-        action.put(id, c.clone());
-        mapActions.get(p).push(action);
-    }
-
-    public boolean actionExists(Player p) {
-        if (mapActions.containsKey(p)) {
-            return !mapActions.get(p).isEmpty();
-        }
-        return false;
-    }
-
-    public HashMap<Integer, CompoundTag> retrieveAction(Player p) {
-        return mapActions.get(p).pop();
-    }
-
-    public void undoAction(World world, NamedTag namedTag, HashMap<Integer, CompoundTag> action) throws IOException {
-        int key = action.keySet().iterator().next();
-        namedTag.setTag(action.get(key));
-
-        String worldPath = getWorldPath(world);
-        NBTUtil.write(namedTag, worldPath + "/data/" + getFileName(key));
     }
 }
