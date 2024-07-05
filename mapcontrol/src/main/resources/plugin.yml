@@ -20,6 +20,8 @@ permissions:
     description: Access to unlock command
   mapcontrol.undo:
     description: Access to undo command
+  mapcontrol.coords:
+    description: Access to coords command
   mapcontrol.tp:
     description: Access to tp command
   mapcontrol.get:

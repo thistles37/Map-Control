@@ -61,6 +61,7 @@ public class Commands implements CommandExecutor {
                 p.sendMessage(ChatColor.GOLD + "/map unlock: " + ChatColor.RESET + "unlock map");
                 p.sendMessage(ChatColor.GOLD + "/map undo: " + ChatColor.RESET + "revert map actions");
                 p.sendMessage(ChatColor.GOLD + "/map tp: " + ChatColor.RESET + "teleport to map origin");
+                p.sendMessage(ChatColor.GOLD + "/map coords: " + ChatColor.RESET + "display map coordinates");
                 p.sendMessage(ChatColor.GOLD + "/map get: " + ChatColor.RESET + "receive map on an item frame");
                 return true;
             }
@@ -140,6 +141,27 @@ public class Commands implements CommandExecutor {
                 }
                 nms.removeCache(id);
                 p.sendMessage(Messages.UNLOCK_MAP_SUCCESS);
+                return true;
+            }
+
+            if (argument.equals("coords") && p.hasPermission("mapcontrol.coords")) {
+                if (!MapUtils.isMap(heldItem)) {
+                    p.sendMessage(Messages.NO_MAP_IN_HAND);
+                    return true;
+                }
+                int id = MapUtils.getMapId(heldItem);
+                try {
+                    mapFile = MapUtils.getMapData(world, id);
+                    if (!mapFile.exists()) {
+                        p.sendMessage(Messages.MAP_DATA_NOT_FOUND);
+                        return true;
+                    }
+                    mapNamedTag = MapUtils.readMapData(mapFile);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Location coordinates = MapUtils.getMapCoordinates(world, MapUtils.getMapCompound(mapNamedTag));
+                p.sendMessage(Messages.MAP_COORDS + "[" + coordinates.getX() + ", " + coordinates.getY() + ", " + coordinates.getZ() + "]");
                 return true;
             }
 

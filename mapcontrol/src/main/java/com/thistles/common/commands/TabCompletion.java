@@ -25,6 +25,9 @@ public class TabCompletion implements TabCompleter {
             if (player.hasPermission("mapcontrol.tp")) {
                 arguments.add("tp");
             }
+            if (player.hasPermission("mapcontrol.coords")) {
+                arguments.add("coords");
+            }
             if (player.hasPermission("mapcontrol.get")) {
                 arguments.add("get");
             }

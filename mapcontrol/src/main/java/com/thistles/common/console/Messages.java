@@ -11,6 +11,7 @@ public class Messages {
     public static String UNLOCK_MAP_SUCCESS;
     public static String TELEPORTING_TO_DESTINATION;
     public static String FRAMED_MAP_FOUND;
+    public static String MAP_COORDS;
 
     public static String MAP_DATA_NOT_FOUND;
     public static String NO_MAP_IN_HAND;
@@ -25,6 +26,7 @@ public class Messages {
         UNLOCK_MAP_SUCCESS = PREFIX + ChatColor.GREEN + "Unlock success.";
         TELEPORTING_TO_DESTINATION = PREFIX + ChatColor.DARK_RED + "Teleporting...";
         FRAMED_MAP_FOUND = PREFIX + ChatColor.GREEN + "Map found.";
+        MAP_COORDS = PREFIX + ChatColor.RESET + "Map origin located at " + ChatColor.GREEN;
 
         MAP_DATA_NOT_FOUND = PREFIX + ChatColor.RED + "Map data not found, wait for world auto-save.";
         NO_MAP_IN_HAND = PREFIX + ChatColor.RED + "Please hold a map.";
