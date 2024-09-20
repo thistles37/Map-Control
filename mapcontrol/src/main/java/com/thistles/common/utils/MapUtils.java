@@ -92,7 +92,8 @@ public class MapUtils {
     public static Location getMapCoordinates(World world, CompoundTag c) {
         int x = c.getInt("xCenter");
         int z = c.getInt("zCenter");
-        return new Location(world, x, 200, z, 1, 1);
+        int y = world.getHighestBlockYAt(x, z);
+        return new Location(world, x, y, z, 1, 1);
     }
 
     public static void tpToMap(Player p, Location coordinates) {
