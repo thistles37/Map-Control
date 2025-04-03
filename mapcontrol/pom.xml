@@ -153,5 +153,10 @@
             <artifactId>nmshandler_1_21_R3</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.thistles</groupId>
+            <artifactId>nmshandler_1_21_R4</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 </project>
