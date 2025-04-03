@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Stack;
 
-public class Commands implements CommandExecutor {
-    public Commands() {
+public class MapControl implements CommandExecutor {
+    public MapControl() {
     }
 
     private final HashMap<Player, Stack<HashMap<Integer, CompoundTag>>> mapActions = new HashMap<>();

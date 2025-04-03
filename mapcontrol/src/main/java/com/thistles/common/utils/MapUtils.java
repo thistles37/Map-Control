@@ -15,6 +15,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -32,13 +33,19 @@ public class MapUtils {
     }
 
     public static int getMapId(ItemStack map) {
-        String version = getServerVersion();
-        if (getVersionInteger(version) < getVersionInteger("1_20_R4")) {
-            return NBTEditor.getInt(map, "map");
+        if (map.getItemMeta() instanceof MapMeta) {
+            return ((MapMeta) map.getItemMeta()).getMapId();
         }
-        ReadWriteNBT nbt = NBT.itemStackToNBT(map);
-        NBTCompound components = (NBTCompound) nbt.getCompound("components");
-        return components.getInteger("minecraft:map_id");
+        return -1;
+
+
+//        String version = getServerVersion();
+//        if (getVersionInteger(version) < getVersionInteger("1_20_R4")) {
+//            return NBTEditor.getInt(map, "map");
+//        }
+//        ReadWriteNBT nbt = NBT.itemStackToNBT(map);
+//        NBTCompound components = (NBTCompound) nbt.getCompound("components");
+//        return components.getInteger("minecraft:map_id");
     }
 
     public static String getServerVersion() {
@@ -145,4 +152,5 @@ public class MapUtils {
         namedTag.setTag(action.get(key));
         saveMapData(world, namedTag, key);
     }
+
 }
